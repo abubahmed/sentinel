@@ -2,10 +2,19 @@ from typing import List
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from starlette import status
-from ..models import models
-from ..schemas import schemas
+import api.models as models
+import api.schemas as schemas
 from fastapi import APIRouter
-from database import get_db
+from api.database import get_db
+import jwt
+import time
+import os
+import dotenv
+from datetime import timedelta, datetime, timezone
+
+dotenv.load_dotenv()
+secret = os.getenv("JWT_SECRET")
+algorithm = os.getenv("JWT_ALGORITHM")
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -17,9 +26,7 @@ def test_users(db: Session = Depends(get_db)):
     return user
 
 
-@router.post(
-    "/", status_code=status.HTTP_201_CREATED, response_model=List[schemas.CreateUser]
-)
+@router.post("/signup", status_code=status.HTTP_201_CREATED)
 def test_users_sent(user_user: schemas.CreateUser, db: Session = Depends(get_db)):
 
     existing_user = (
@@ -34,8 +41,16 @@ def test_users_sent(user_user: schemas.CreateUser, db: Session = Depends(get_db)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-
-    return [new_user]
+    payload = {
+        "email": user_user.email,
+        "exp": datetime.now(timezone.utc) + timedelta(hours=48),
+    }
+    token = jwt.encode(payload, secret, algorithm)
+    return {
+        "detail": "User created successfully",
+        "user": new_user,
+        "token": token,
+    }
 
 
 @router.get("/{id}", response_model=schemas.CreateUser, status_code=status.HTTP_200_OK)
@@ -49,6 +64,29 @@ def get_test_one_user(id: int, db: Session = Depends(get_db)):
             detail=f"The id: {id} you requested for does not exist",
         )
     return idv_user
+
+
+@router.post("/login", status_code=status.HTTP_200_OK)
+def login_test_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
+
+    user = db.query(models.User).filter(models.User.email == user.email).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Invalid credentials"
+        )
+
+    if user.password != user.password:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Invalid credentials"
+        )
+
+    payload = {
+        "email": user.email,
+        "exp": datetime.now(timezone.utc) + timedelta(hours=48),
+    }
+    token = jwt.encode(payload, secret, algorithm)
+    return {"token": token, "user": user, "detail": "Login successful"}
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
