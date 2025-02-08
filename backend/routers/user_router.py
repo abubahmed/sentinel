@@ -2,8 +2,8 @@ from typing import List
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from starlette import status
-import models
-import schemas
+from ..models import models
+from ..schemas import schemas
 from fastapi import APIRouter
 from database import get_db
 
@@ -14,7 +14,6 @@ router = APIRouter(prefix="/users", tags=["Users"])
 def test_users(db: Session = Depends(get_db)):
 
     user = db.query(models.User).all()
-
     return user
 
 
@@ -23,12 +22,14 @@ def test_users(db: Session = Depends(get_db)):
 )
 def test_users_sent(user_user: schemas.CreateUser, db: Session = Depends(get_db)):
 
-    existing_user = db.query(models.User).filter(models.User.email == user_user.email).first()
+    existing_user = (
+        db.query(models.User).filter(models.User.email == user_user.email).first()
+    )
     if existing_user:
-      raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail="User with this email already exists",
-      )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User with this email already exists",
+        )
     new_user = models.User(**user_user.dict())
     db.add(new_user)
     db.commit()

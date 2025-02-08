@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api import router
+from backend.routers.user_router import router
 from database import engine, SessionLocal
 import models
 import psycopg2
