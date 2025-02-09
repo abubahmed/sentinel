@@ -44,7 +44,7 @@ export default function App() {
 
   const handleSubmit = async () => {
     if (authState === "login") {
-      router.push("/schedule");
+      router.push("/map");
       return
       console.log("Logging in with", email, password);
       if (!email || !password) {

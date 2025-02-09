@@ -24,3 +24,22 @@ class UserLogin(BaseModel):
 
   class Config:
     orm_mode = True
+    
+class CreateSchedule(BaseModel):
+  id: int
+  user_id: int | None = None
+  data: str | None = None
+  
+
+  class Config:
+    orm_mode = True
+    
+class CreateReport(BaseModel):
+  id: int
+  user_id: int | None = None
+  title: str | None = None
+  description: str | None = None
+  self_report: bool | None = True
+
+  class Config:
+    orm_mode = True

@@ -13,32 +13,51 @@ print(OPENAI_API_KEY)
 
 
 def extract_calendar_info_from_base64(base64_image):
-    client = openai.OpenAI(api_key=OPENAI_API_KEY)
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": "What is in the schedule? Return a JSON array of objects of all the events in the image. Each object should have a 'location', 'title', 'start', and 'end' field."
-                    },
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
-                    },
-                ],
-            }
-        ],
-    )
-    response = response.choices[0].message.content
-    print(response)
-    start_index = response.find('[')
-    end_index = response.rfind(']') + 1
-    json_array_str = response[start_index:end_index]
-    calendar_info = json.loads(json_array_str)
-    return calendar_info
+    try:
+        client = openai.OpenAI(api_key=OPENAI_API_KEY)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": """Extract the information in the provided schedule image. Return a strictly JSON formatted array of objects of all the events in the image. Each object should have a 'day', 'location', 'title', 'start', and 'end' field.
+                            
+                            - location - The exact location of the event or class. If not available, provide an empty string. For example, 'McDonell 202A'. Always provide the location in the format it was given in, which will typically follow 'Building Room'.
+                            
+                            - title - The title of the event or class. For example, 'Calculus 1' or 'Calculus I' or 'Calculus'. If not available, provide an empty string.
+                            
+                            - start/end - of the event or class in HH:MM AM/PM format. If not available, provide an empty string. For example, '10:00 AM'.
+                            
+                            - day - The day of the week of the event or class. Can be found directly above each event's cell in the uppermost row. For example, 'Monday'. If not available, provide an empty string.
+                            """
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
+                        },
+                    ],
+                }
+            ],
+        )
+        response = response.choices[0].message.content
+        print(response)
+        start_index = response.find('[')
+        end_index = response.rfind(']') + 1
+        json_array_str = response[start_index:end_index]
+        calendar_info = json.loads(json_array_str)
+        return {
+            "data": calendar_info,
+            "success": True,
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "data": [],
+            "success": False,
+        }
 
 
 if __name__ == "__main__":
