@@ -10,7 +10,11 @@ import jwt
 import time
 import os
 import dotenv
+import uuid
 from datetime import timedelta, datetime, timezone
+from api.util.school_data import fetch_and_map_domains
+from api.util.email_verify import send_verification_email
+from pydantic import BaseModel
 
 dotenv.load_dotenv()
 secret = os.getenv("JWT_SECRET")
@@ -28,28 +32,73 @@ def test_users(db: Session = Depends(get_db)):
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
 def test_users_sent(user_user: schemas.CreateUser, db: Session = Depends(get_db)):
-
     existing_user = (
         db.query(models.User).filter(models.User.email == user_user.email).first()
     )
+    email_extension = user_user.email.split("@")[-1]
+    domain_college_map = fetch_and_map_domains()
+    if email_extension not in domain_college_map:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email domain does not match any known institution",
+        )
+    if domain_college_map[email_extension] != user_user.institution:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email domain does not match the provided institution",
+        )
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User with this email already exists",
         )
-    new_user = models.User(**user_user.dict())
+    print(user_user)
+    verification_code = str(uuid.uuid4())[:4]
+    user_user.verification_code = verification_code
+    user_user.is_verified = False
+    new_user = models.User(
+        **user_user.dict(),
+    )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    send_verification_email(user_user.email, verification_code)
+
+    return {
+        "detail": "User created successfully. Please check your email to verify your account.",
+        "success": True,
+    }
+
+
+class VerificationRequest(BaseModel):
+    email: str
+    verification_code: str
+
+
+@router.post("/verify", status_code=status.HTTP_200_OK)
+def verify_user(request: VerificationRequest, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == request.email).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+    if user.verification_code != request.verification_code:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid verification code"
+        )
+    user.is_verified = True
+    db.commit()
+    db.refresh(user)
     payload = {
-        "email": user_user.email,
+        "email": user.email,
         "exp": datetime.now(timezone.utc) + timedelta(hours=48),
     }
     token = jwt.encode(payload, secret, algorithm)
     return {
-        "detail": "User created successfully",
-        "user": new_user,
+        "detail": "User verified successfully",
+        "success": True,
         "token": token,
+        "user": user,
     }
 
 
@@ -69,16 +118,23 @@ def get_test_one_user(id: int, db: Session = Depends(get_db)):
 @router.post("/login", status_code=status.HTTP_200_OK)
 def login_test_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
 
-    user = db.query(models.User).filter(models.User.email == user.email).first()
-
-    if not user:
+    found_user = db.query(models.User).filter(models.User.email == user.email).first()
+    if not found_user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Invalid credentials"
         )
-
-    if user.password != user.password:
+    if found_user.password != user.password:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Invalid credentials"
+        )
+    if found_user.institution != user.institution:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Invalid credentials"
+        )
+    if not found_user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Please verify your account",
         )
 
     payload = {
@@ -86,7 +142,7 @@ def login_test_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
         "exp": datetime.now(timezone.utc) + timedelta(hours=48),
     }
     token = jwt.encode(payload, secret, algorithm)
-    return {"token": token, "user": user, "detail": "Login successful"}
+    return {"token": token, "user": user, "detail": "Login successful", "success": True}
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -5,9 +5,11 @@ class UserBase(BaseModel):
   name: str
   institution: str
   email: str
-  phone_number: str
+  phone_number: str | None = None
   password: str
-
+  verification_code: str | None = None
+  is_verified: bool | None = False
+  
   class Config:
     orm_mode = True
 
