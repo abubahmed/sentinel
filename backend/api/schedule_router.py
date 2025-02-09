@@ -25,7 +25,6 @@ def upload_image(image_request: ImageRequest, request: Request, db: Session = De
         )
 
     try:
-        print(image_data)
         base64_index = image_data.find('base64')
         if base64_index != -1:
             image_data = image_data[base64_index + len('base64'):]

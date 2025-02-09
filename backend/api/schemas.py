@@ -21,6 +21,7 @@ class CreateUser(UserBase):
 class UserLogin(BaseModel):
   email: str
   password: str
+  institution: str | None = None
 
   class Config:
     orm_mode = True
@@ -40,6 +41,7 @@ class CreateReport(BaseModel):
   title: str | None = None
   description: str | None = None
   self_report: bool | None = True
+  severity: str | None = None
 
   class Config:
     orm_mode = True

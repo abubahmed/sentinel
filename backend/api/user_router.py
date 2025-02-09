@@ -32,32 +32,33 @@ def test_users(db: Session = Depends(get_db)):
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
 def test_users_sent(user_user: schemas.CreateUser, db: Session = Depends(get_db)):
+  try:
     existing_user = (
-        db.query(models.User).filter(models.User.email == user_user.email).first()
+      db.query(models.User).filter(models.User.email == user_user.email).first()
     )
     email_extension = user_user.email.split("@")[-1]
     domain_college_map = fetch_and_map_domains()
     if email_extension not in domain_college_map:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email domain does not match any known institution",
-        )
+      raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Email domain does not match any known institution",
+      )
     if domain_college_map[email_extension] != user_user.institution:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email domain does not match the provided institution",
-        )
+      raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Email domain does not match the provided institution",
+      )
     if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User with this email already exists",
-        )
+      raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="User with this email already exists",
+      )
     print(user_user)
     verification_code = str(uuid.uuid4())[:4]
     user_user.verification_code = verification_code
     user_user.is_verified = False
     new_user = models.User(
-        **user_user.dict(),
+      **user_user.dict(),
     )
     db.add(new_user)
     db.commit()
@@ -65,9 +66,16 @@ def test_users_sent(user_user: schemas.CreateUser, db: Session = Depends(get_db)
     send_verification_email(user_user.email, verification_code)
 
     return {
-        "detail": "User created successfully. Please check your email to verify your account.",
-        "success": True,
+      "detail": "User created successfully. Please check your email to verify your account.",
+      "success": True,
     }
+  except Exception as e:
+    db.rollback()
+    print(f"Exception occurred: {e}")
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail=f"An error occurred: {str(e)}",
+    )
 
 
 class VerificationRequest(BaseModel):
@@ -91,6 +99,7 @@ def verify_user(request: VerificationRequest, db: Session = Depends(get_db)):
     db.refresh(user)
     payload = {
         "email": user.email,
+        "user_id": user.id,
         "exp": datetime.now(timezone.utc) + timedelta(hours=48),
     }
     token = jwt.encode(payload, secret, algorithm)
@@ -128,6 +137,7 @@ def login_test_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND, detail="Invalid credentials"
         )
     if found_user.institution != user.institution:
+        print(found_user.institution, user.institution)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Invalid credentials"
         )
@@ -139,6 +149,7 @@ def login_test_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
 
     payload = {
         "email": user.email,
+        "user_id": found_user.id,
         "exp": datetime.now(timezone.utc) + timedelta(hours=48),
     }
     token = jwt.encode(payload, secret, algorithm)

@@ -32,5 +32,6 @@ class Report(Base):
     title = Column(String,nullable=True)
     description = Column(String,nullable=True)
     self_report = Column(Boolean,default=True)
+    severity = Column(String,nullable=True)
     dates = Column(ARRAY(String), nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text('now()'))

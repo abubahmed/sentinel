@@ -5,6 +5,8 @@ import os
 
 load_dotenv()
 
+autocomplete_api_key = os.getenv('AUTOCOMPLETE_API_KEY')
+
 # def get_coordinates(location_name, api_key):
 #     base_url = "https://maps.googleapis.com/maps/api/geocode/json"
 #     params = {
@@ -33,8 +35,8 @@ load_dotenv()
 #   else:
 #     print(f"Location {location_name} not found.")
     
-def autocomplete_location(query, api_key):
-    url = f"https://api.geoapify.com/v1/geocode/autocomplete?text={query}&apiKey={api_key}"
+def autocomplete_location(query):
+    url = f"https://api.geoapify.com/v1/geocode/autocomplete?text={query}&apiKey={autocomplete_api_key}"
     headers = CaseInsensitiveDict()
     headers["Accept"] = "application/json"
     
@@ -46,16 +48,15 @@ def autocomplete_location(query, api_key):
             coordinates = top_feature["geometry"]["coordinates"]
             longitude = coordinates[0]
             latitude = coordinates[1]
-            return longitude, latitude
+            return latitude, longitude
         else:
-            print("No results found.")
+            print("No results found")
     print(f"Error: {response.status_code}")
     return None
     
 
-autocomplete_api_key = os.getenv('AUTOCOMPLETE_API_KEY')
 query = 'Mcdonnell Hall Princeton University'
-autocomplete_results = autocomplete_location(query, autocomplete_api_key)
+autocomplete_results = autocomplete_location(query)
 
 if autocomplete_results:
     print(autocomplete_results)

@@ -15,11 +15,13 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useApi from "@/util/apiClient";
 import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-  const apiClient = useApi({ useToken: false });
+  const router = useRouter();
+  const apiClient = useApi({ useToken: true });
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -84,6 +86,7 @@ export default function App() {
         alert("Image upload unsuccessful");
         return;
       }
+      router.push("/map");
     } catch (error) {
       console.error("Signup error", error);
     }

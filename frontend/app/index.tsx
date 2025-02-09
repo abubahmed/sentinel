@@ -44,8 +44,6 @@ export default function App() {
 
   const handleSubmit = async () => {
     if (authState === "login") {
-      router.push("/map");
-      return
       console.log("Logging in with", email, password);
       if (!email || !password) {
         console.error("Email and password are required");
@@ -59,6 +57,7 @@ export default function App() {
         const response = await apiClient.post("users/login", {
           email,
           password,
+          institution,
         });
         console.log("Login response", response.data);
         const { token, success, user } = response.data;
@@ -69,9 +68,8 @@ export default function App() {
         await AsyncStorage.setItem("token", token);
         await AsyncStorage.setItem("email", user.email);
         await AsyncStorage.setItem("institution", user.institution);
-        await AsyncStorage.setItem("name", user.name);
         console.log("Login successful");
-        router.push("/schedule");
+        router.push("/map");
       } catch (error) {
         console.error("Login error", error);
       }
@@ -131,7 +129,6 @@ export default function App() {
         await AsyncStorage.setItem("token", token);
         await AsyncStorage.setItem("email", user.email);
         await AsyncStorage.setItem("institution", user.institution);
-        await AsyncStorage.setItem("name", user.name);
         console.log("Verification successful");
         router.push("/schedule");
       } catch (error) {
