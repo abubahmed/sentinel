@@ -1,25 +1,14 @@
-import { DarkTheme, DefaultTheme, ServerContainer, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
 import "../globals.css";
-import { Link } from "expo-router";
-import { Text } from "react-native";
-import { PaperProvider, RadioButton } from "react-native-paper";
-import { Button, TextInput } from "react-native-paper";
-import { SafeAreaView, ScrollView, StyleSheet, View, Dimensions } from "react-native";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Text, SafeAreaView, ScrollView, StyleSheet, View, Dimensions, TouchableOpacity } from "react-native";
+import { Button, TextInput, SegmentedButtons } from "react-native-paper";
 import useApi from "@/util/apiClient";
 import { useRouter } from "expo-router";
-import { Dropdown } from "react-native-paper-dropdown";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { MaterialIcons } from "react-native-vector-icons";
-import { TouchableOpacity } from "react-native";
-import { SegmentedButtons } from "react-native-paper";
 
 SplashScreen.preventAutoHideAsync();
 

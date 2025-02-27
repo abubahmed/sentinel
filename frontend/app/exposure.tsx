@@ -1,12 +1,8 @@
-import { DarkTheme, DefaultTheme, ServerContainer, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
-import "react-native-reanimated";
-import "../globals.css";
-import { Text } from "react-native";
+import { useEffect } from "react";
 import {
+  Text,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -16,6 +12,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { MaterialIcons } from "react-native-vector-icons";
+import "../globals.css";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -28,18 +25,16 @@ export default function Exposure() {
   const params = useLocalSearchParams();
   let { points } = params as any;
   points = JSON.parse(points);
-  console.log("Points: ", points);
 
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
-
+  
   if (!loaded) {
     return null;
   }
-
   const handleBackPress = () => {
     router.back();
   };
@@ -83,7 +78,7 @@ export default function Exposure() {
                   Times: {point.class_start} - {point.class_end}
                 </Text>
                 <Text className="text-md text-center">
-                  {/* Severity: {point.severity.charAt(0).toUpperCase() + point.severity.slice(1)} */}
+                  Severity: {point.severity.charAt(0).toUpperCase() + point.severity.slice(1)}
                 </Text>
                 <Text className="text-md font-semibold text-center mt-6">
                   Take appropriate action to protect your health

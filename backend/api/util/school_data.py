@@ -1,5 +1,4 @@
 import requests
-import json
 
 
 def fetch_university_data(url):

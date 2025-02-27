@@ -1,12 +1,10 @@
-import { DarkTheme, DefaultTheme, ServerContainer, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import "react-native-reanimated";
 import "../globals.css";
-import { Text } from "react-native";
 import {
+  Text,
   SafeAreaView,
   ScrollView,
   StyleSheet,

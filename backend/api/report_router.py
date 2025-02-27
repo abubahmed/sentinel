@@ -1,23 +1,15 @@
 from typing import List
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, APIRouter, Request
 from sqlalchemy.orm import Session
 from starlette import status
 import api.models as models
-import api.schemas as schemas
-from fastapi import APIRouter
 from api.database import get_db
 import jwt
-import time
 import os
 import dotenv
-import uuid
-from datetime import timedelta, datetime, timezone
-from api.util.school_data import fetch_and_map_domains
-from api.util.email_verify import send_verification_email
-from api.util.read_schedule import get_coords_from_schedule_name
+from datetime import datetime, timezone
 from pydantic import BaseModel
-from api.util.read_schedule import extract_calendar_info_from_base64
-from fastapi import HTTPException, Depends, APIRouter, Request
+from api.util.read_schedule import get_coords_from_schedule_name
 import json
 import random
 

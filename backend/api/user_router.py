@@ -1,13 +1,11 @@
 from typing import List
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from starlette import status
 import api.models as models
 import api.schemas as schemas
-from fastapi import APIRouter
 from api.database import get_db
 import jwt
-import time
 import os
 import dotenv
 import uuid

@@ -1,20 +1,13 @@
-import { DarkTheme, DefaultTheme, ServerContainer, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import "react-native-reanimated";
-import "../globals.css";
-import { Link } from "expo-router";
-import { Text } from "react-native";
-import { PaperProvider } from "react-native-paper";
+import { Text, SafeAreaView, ScrollView, StyleSheet, View, Dimensions } from "react-native";
 import { Button, TextInput } from "react-native-paper";
-import { SafeAreaView, ScrollView, StyleSheet, View, Dimensions } from "react-native";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useApi from "@/util/apiClient";
 import { useRouter } from "expo-router";
+import "react-native-reanimated";
+import "../globals.css";
 
 SplashScreen.preventAutoHideAsync();
 

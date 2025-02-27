@@ -1,21 +1,12 @@
-import { DarkTheme, DefaultTheme, ServerContainer, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import "react-native-reanimated";
-import "../globals.css";
-import { Link } from "expo-router";
-import { Text, Image } from "react-native";
-import { PaperProvider } from "react-native-paper";
-import { Button, TextInput } from "react-native-paper";
-import { SafeAreaView, ScrollView, StyleSheet, View, Dimensions } from "react-native";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import useApi from "@/util/apiClient";
+import { Text, Image, SafeAreaView, ScrollView, StyleSheet, View, Dimensions } from "react-native";
+import { Button } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
+import useApi from "@/util/apiClient";
+import "../globals.css";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,11 +17,6 @@ export default function App() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
   const { width, height } = Dimensions.get("window");
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [institution, setInstitution] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
 
@@ -69,7 +55,6 @@ export default function App() {
   };
 
   const handleSubmit = async () => {
-    console.log("Submitting with", email, password, confirmPassword, image);
     if (!image) {
       console.error("All fields are required");
       return;

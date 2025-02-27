@@ -1,9 +1,6 @@
-import smtplib
 import os
 from dotenv import load_dotenv
-import requests
 from mailjet_rest import Client
-import os
 
 load_dotenv()
 

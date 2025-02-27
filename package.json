@@ -1,0 +1,17 @@
+{
+  "name": "sentinel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",
+    "start-backend": "cd backend && call .venv\\Scripts\\activate && uvicorn main:app --host 0.0.0.0 --port 8000",
+    "start-frontend": "start cmd /k \"cd frontend && npm start\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

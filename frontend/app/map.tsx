@@ -1,15 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Text,
-  Image,
-  ScrollView,
-  SafeAreaView,
-  Dimensions,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { StyleSheet, View, Text, ScrollView, SafeAreaView, Dimensions } from "react-native";
 import * as Location from "expo-location";
 import MapView, { Marker, Circle } from "react-native-maps";
 import { Button } from "react-native-paper";
@@ -53,7 +43,6 @@ const Waiting_Driver_Screen = () => {
 
       let location: any = await Location.getCurrentPositionAsync({});
       setCurrentLocation(location.coords);
-
       setInitialRegion({
         latitude: location.coords.latitude as any,
         longitude: location.coords.longitude as any,

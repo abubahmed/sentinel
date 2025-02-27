@@ -12,5 +12,3 @@ app = FastAPI()
 app.include_router(user_router)
 app.include_router(schedule_router)
 app.include_router(report_router)
-
-
